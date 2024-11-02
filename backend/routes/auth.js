@@ -9,7 +9,7 @@ const router = express.Router();
 
 const JWT_SECRET = 'Rishabhisagood$boy';
 
-//ROUTE 1: Create a user using: POST "/api/auth/createuser". No login required
+//ROUTE 1: Create/Signup a user using: POST "/api/auth/createuser". No login required
 router.post('/createuser', [
     body('name', 'Enter a valid name').isLength({ min: 3 }),
     body('email', 'Enter a valid email').isEmail(),
@@ -18,6 +18,7 @@ router.post('/createuser', [
     // if there are errors, return bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        //bad request with status code 400
         return res.status(400).json({ errors: errors.array() });
     };
 
@@ -43,7 +44,6 @@ router.post('/createuser', [
         //Now no need of promises while using async await
         // .then(user => res.json(user))
         //   .catch(err => {console.log(err)
-        //   res.json({error: "Please enter a unique value for email", message: err.message})});
 
         // A JSON Web Token is a way to authenticate users by sending a token in the authorization header of an HTTP request. The token contains information about the user, such as their email, name etc.
         const data = {
@@ -62,7 +62,7 @@ router.post('/createuser', [
     }
 });
 
-//ROUTE 2: Authenticate a user using: POST "/api/auth/login". No login required
+//ROUTE 2: Authenticate/LogIn a user using: POST "/api/auth/login". No login required
 router.post('/login', [
     body('email', 'Enter a valid email').isEmail(),
     body('password', 'Password cannot be blank').exists(),
@@ -70,6 +70,7 @@ router.post('/login', [
     // if there are errors, return bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        //bad request with status code 400
         return res.status(400).json({ errors: errors.array() });
     };
 
@@ -78,13 +79,14 @@ router.post('/login', [
         //check whether the user with this email exists or not
         let user = await User.findOne({ email: email });
         if (!user) {
-            //Return bad request
+            //bad request with status code 400
             return res.status(400).json({ error: "Please try to login with correct credentials" });
         }
         //check whether the pasword is correct or not
+        //returns true or false
         const passwordCompare = await bcrypt.compare(password, user.password);
         if (!passwordCompare) {
-            //Return bad request
+            //bad request with status code 400
             return res.status(400).json({ error: "Please try to login with correct credentials" });
         }
 
@@ -108,12 +110,14 @@ router.post('/login', [
 //Adding a middleware function "fetchuser"
 router.post('/getuser',fetchuser, async (req, res) => {
     try {
+        //we get userId with the help of fetchuser middleware function
         const userId = req.user.id;
         //finding user's all details except its password
         const user = await User.findById(userId).select("-password");
         res.send(user);
     } catch (error) {
         console.log(error.message);
+        //send internal server error
         res.status(500).send("Internal Server Error");
     }
 });
