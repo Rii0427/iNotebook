@@ -32,6 +32,7 @@ router.post('/addnote', fetchuser, [
         // if there are errors, return bad request and the error
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            //bad request with status code 400
             return res.status(400).json({ errors: errors.array() });
         };
 
@@ -69,6 +70,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
         //find the note to be updated and update it
         let note = await Notes.findById(req.params.id);
         if(!note){
+            //Not Found with status code 404
             return res.status(404).send("Not found");
         }
         //Allow updation only if user owns this note
@@ -92,10 +94,12 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
         //find the note to be deleted and delete it
         let note = await Notes.findById(req.params.id);
         if(!note){
+            //Not Found with status code 404
             return res.status(404).send("Not found");
         }
         //Allow deletion only if user owns this note
         if(note.user.toString() !== req.user.id){
+            //Unauthorised Request with status code 401
             return res.status(401).send("Not Allowed");
         }
 
