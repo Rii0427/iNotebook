@@ -1,10 +1,13 @@
 const connectToMongo = require('./db');
 const express = require('express');
+var cors = require('cors');
 
 connectToMongo();
 
 const app = express();
 const port = 5000;
+
+app.use(cors());
 
 //The express.json middleware is important for parsing incoming JSON payloads and making that data available in the req. body or further processing within the routes.
 app.use(express.json());
@@ -20,5 +23,5 @@ app.get('/',(req,res) => {
 
 //the app is listening for requests on a specific port and will log a message when it's ready
 app.listen(port,(req,res) => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`iNotebook backend listening at http://localhost:${port}`);
 });
